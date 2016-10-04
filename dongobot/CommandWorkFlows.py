@@ -87,7 +87,7 @@ class CreateCWF(BaseCWF):
                 return
             if self.session.query(Dong).join(Dong.user_dong).filter(UserDong.user_id == self.user_id) \
                     .filter(Dong.title == dong_title).count() > 0:
-                logging.error('duplicate dong title')
+                logger.error('duplicate dong title')
                 bot.sendMessage(self.chat_id, text='Dong title ({}) is duplicated, insert a new Dong title'
                                 .format(dong_title), reply_markup=reply_markup_hide)
                 return
@@ -106,7 +106,7 @@ class CreateCWF(BaseCWF):
                 try:
                     self.session.commit()
                 except Exception as e:
-                    logging.error(e)
+                    logger.error(e)
                     bot.sendMessage(self.chat_id, text='The process failed', reply_markup=reply_markup_hide)
 
                 bot.sendMessage(self.chat_id,
@@ -146,7 +146,7 @@ class JoinCWF(BaseCWF):
                 return
             dong = self.session.query(Dong).filter(Dong.join_key == join_key and Dong.joinable is True).one_or_none()
             if dong is None:
-                logging.error('invalid join key')
+                logger.error('invalid join key')
                 bot.sendMessage(self.chat_id, text='Join key ({}) is Invalid, insert a valid Join key'
                                 .format(join_key), reply_markup=reply_markup_hide)
                 return
@@ -156,7 +156,7 @@ class JoinCWF(BaseCWF):
                 try:
                     self.session.commit()
                 except Exception as e:
-                    logging.error(e)
+                    logger.error(e)
                     bot.sendMessage(self.chat_id, text='The process failed', reply_markup=reply_markup_hide)
                 bot.sendMessage(self.chat_id, text='You successfully joined to dong ({})'.format(dong.title),
                                 reply_markup=reply_markup_hide)
@@ -297,7 +297,7 @@ class ExpenseCWF(BaseCWF):
                                             reply_markup=reply_markup_hide)
 
                 except Exception as e:
-                    logging.error(e)
+                    logger.error(e)
                     bot.sendMessage(self.chat_id, text='This expense failed due some errors.',
                                     reply_markup=reply_markup_hide)
                 self.state = State.End

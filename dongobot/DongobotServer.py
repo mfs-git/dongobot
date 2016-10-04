@@ -10,11 +10,12 @@ from CommandWorkFlows import CreateCWF, JoinCWF, ExpenseCWF, ReportCWF, State
 
 
 class DongobotServer:
-    def __init__(self, bot_token):
+    def __init__(self, bot_token, logger):
         self.updater = Updater(bot_token)
         self.dp = self.updater.dispatcher
         self.core = DongCore.DongCore()
         self.cwf_list = {}
+        self.logger = logger
 
     def run(self):
         models.create_models()
@@ -38,41 +39,56 @@ class DongobotServer:
         self.updater.stop()
 
     def message_handler(self, bot, update):
-        user = self.get_user(update)
-        if user.id in self.cwf_list.keys() \
-                and self.cwf_list[user.id] is not None\
-                and self.cwf_list[user.id].state != State.End:
-            self.cwf_list[user.id].handle(bot, update.message.text)
-        else:
-            bot.sendMessage(update.message.chat.id, text='What !?')
+        try:
+            user = self.get_user(update)
+            if user.id in self.cwf_list.keys() \
+                    and self.cwf_list[user.id] is not None\
+                    and self.cwf_list[user.id].state != State.End:
+                self.cwf_list[user.id].handle(bot, update.message.text)
+            else:
+                bot.sendMessage(update.message.chat.id, text='What !?')
+        except Exception as e:
+            logging.error(e)
 
     def create_dong(self, bot, update, args):
-        user = self.get_user(update)
-        if user.id in self.cwf_list.keys() and self.cwf_list[user.id] is not None:
-            self.cwf_list[user.id].stop()
-        self.cwf_list[user.id] = CreateCWF(user.id, user.chat_id)
-        self.cwf_list[user.id].start(bot, args)
+        try:
+            user = self.get_user(update)
+            if user.id in self.cwf_list.keys() and self.cwf_list[user.id] is not None:
+                self.cwf_list[user.id].stop()
+            self.cwf_list[user.id] = CreateCWF(user.id, user.chat_id)
+            self.cwf_list[user.id].start(bot, args)
+        except Exception as e:
+            logging.error(e)
 
     def join_dong(self, bot, update, args):
-        user = self.get_user(update)
-        if user.id in self.cwf_list.keys() and self.cwf_list[user.id] is not None:
-            self.cwf_list[user.id].stop()
-        self.cwf_list[user.id] = JoinCWF(user.id, user.chat_id)
-        self.cwf_list[user.id].start(bot, args)
+        try:
+            user = self.get_user(update)
+            if user.id in self.cwf_list.keys() and self.cwf_list[user.id] is not None:
+                self.cwf_list[user.id].stop()
+            self.cwf_list[user.id] = JoinCWF(user.id, user.chat_id)
+            self.cwf_list[user.id].start(bot, args)
+        except Exception as e:
+            logging.error(e)
 
     def expense_dong(self, bot, update, args):
-        user = self.get_user(update)
-        if user.id in self.cwf_list.keys() and self.cwf_list[user.id] is not None:
-            self.cwf_list[user.id].stop()
-        self.cwf_list[user.id] = ExpenseCWF(user.id, user.chat_id)
-        self.cwf_list[user.id].start(bot, args)
+        try:
+            user = self.get_user(update)
+            if user.id in self.cwf_list.keys() and self.cwf_list[user.id] is not None:
+                self.cwf_list[user.id].stop()
+            self.cwf_list[user.id] = ExpenseCWF(user.id, user.chat_id)
+            self.cwf_list[user.id].start(bot, args)
+        except Exception as e:
+            logging.error(e)
 
     def report_dong(self, bot, update):
-        user = self.get_user(update)
-        if user.id in self.cwf_list.keys() and self.cwf_list[user.id] is not None:
-            self.cwf_list[user.id].stop()
-        self.cwf_list[user.id] = ReportCWF(user.id, user.chat_id)
-        self.cwf_list[user.id].start(bot)
+        try:
+            user = self.get_user(update)
+            if user.id in self.cwf_list.keys() and self.cwf_list[user.id] is not None:
+                self.cwf_list[user.id].stop()
+            self.cwf_list[user.id] = ReportCWF(user.id, user.chat_id)
+            self.cwf_list[user.id].start(bot)
+        except Exception as e:
+            logging.error(e)
 
     @staticmethod
     def get_user(update):
@@ -91,6 +107,6 @@ class DongobotServer:
         try:
             session.commit()
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
             return None
         return user

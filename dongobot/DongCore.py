@@ -19,7 +19,7 @@ class DongCore:
         try:
             user = session.query(User).filter(User.code == user_tel_id).one_or_none()
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
 
         if user is None:
             user = User(first_name=first_name, last_name=last_name, code=user_tel_id)
@@ -28,7 +28,7 @@ class DongCore:
 
         if session.query(Dong).join(Dong.user_dong).filter(UserDong.user == user) \
             .filter(Dong.title == dong_title).count() > 0:
-            logging.error('duplicate dong title')
+            logger.error('duplicate dong title')
             return None
 
         key = uuid.uuid4().hex[:6].upper()
@@ -45,7 +45,7 @@ class DongCore:
         try:
             session.commit()
         except Exception as e:
-            logging.error(str(e))
+            logger.error(str(e))
             return None
 
         return key
@@ -57,7 +57,7 @@ class DongCore:
         try:
             user = session.query(User).filter(User.code == user_tel_id).one_or_none()
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
 
         if user is None:
             user = User(first_name=first_name, last_name=last_name, code=user_tel_id)
@@ -65,7 +65,7 @@ class DongCore:
         user.chat_id = user_chat_id
 
         if dong is None:
-            logging.error('Could not to join to this Dong')
+            logger.error('Could not to join to this Dong')
             return None
 
         user_dong = UserDong(user=user, dong=dong, is_admin=False, balance=0)
@@ -74,7 +74,7 @@ class DongCore:
         try:
             session.commit()
         except Exception as e:
-            logging.error(str(e))
+            logger.error(str(e))
             return None
 
         return dong.title
